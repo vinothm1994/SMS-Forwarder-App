@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SMS Forwarder</string>
+    <string name="no_data">You are not added any forward sms 😐</string>
+    <string name="runtime_permissions_txt">Please enable ALL permissions from app settings</string>
+</resources>
