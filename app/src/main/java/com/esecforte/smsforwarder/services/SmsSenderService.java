@@ -10,11 +10,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.telephony.SmsManager;
-import android.util.Log;
 
 import com.esecforte.smsforwarder.R;
 import com.esecforte.smsforwarder.receivers.DeliveredSmsReceiver;
 import com.esecforte.smsforwarder.receivers.SendSmsReceiver;
+import com.esecforte.smsforwarder.utils.AppUtils;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -65,10 +65,16 @@ public class SmsSenderService extends IntentService {
     void sendSms(String from, String body, String[] toNums) {
         String messDesc = "from:" + from + "\n" + body;
         SmsManager smsManager = SmsManager.getDefault();
-        PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 10, new Intent(this, SendSmsReceiver.class), PendingIntent.FLAG_ONE_SHOT);
-        PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 11, new Intent(this, DeliveredSmsReceiver.class), PendingIntent.FLAG_ONE_SHOT);
+
         for (String toNo : toNums) {
+            Intent intent = new Intent(this, SendSmsReceiver.class);
+            intent.putExtra("no",toNo);
+            PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 10, intent, PendingIntent.FLAG_ONE_SHOT);
+            Intent intent1 = new Intent(this, DeliveredSmsReceiver.class);
+            intent1.putExtra("no",toNo);
+            PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 11, intent1, PendingIntent.FLAG_ONE_SHOT);
             smsManager.sendTextMessage(toNo, null, messDesc, sentPendingIntent, deliveredPendingIntent);
+            AppUtils.appendLog("sending sms to "+toNo, true);
         }
 
     }

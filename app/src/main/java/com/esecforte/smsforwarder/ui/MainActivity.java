@@ -9,7 +9,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.esecforte.smsforwarder.MyApp;
 import com.esecforte.smsforwarder.R;
 import com.esecforte.smsforwarder.data.AppPref;
 import com.esecforte.smsforwarder.model.SMSForwardEntry;
@@ -28,8 +32,18 @@ import com.google.android.material.chip.Chip;
 
 import org.json.JSONException;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -40,15 +54,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static com.esecforte.smsforwarder.data.AppPref.SHOW_OPTM_DIALOG;
 import static com.esecforte.smsforwarder.data.AppPref.USER_PH_NO_DATA;
+import static com.esecforte.smsforwarder.receivers.SmsReceiver.startSplit;
 
 public class MainActivity extends BaseActivity {
 
     private static final int REQUEST_PERMISSIONS = 1012;
+    private static final int MENU_ITEM_ITEM1 = 1;
     List<SMSForwardEntry> smsForwardEntries = new ArrayList<>();
     AppPref appPref;
     private RecyclerView sms_ph_rv;
     private SMSForwardAdapter smsForwardAdapter;
     private View no_data_ly;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +77,7 @@ public class MainActivity extends BaseActivity {
                         String[]{Manifest.permission.SEND_SMS,
                         Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE}, R.string.runtime_permissions_txt
                 , REQUEST_PERMISSIONS);
+
     }
 
     @Override
@@ -70,8 +88,11 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
+
     void initView() {
         Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
         View fab_add = findViewById(R.id.fab_add);
         sms_ph_rv = findViewById(R.id.sms_ph_rv);
         no_data_ly = findViewById(R.id.no_data_ly);
@@ -185,6 +206,24 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, MENU_ITEM_ITEM1, Menu.NONE, "Log");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_ITEM_ITEM1:
+                startActivity(new Intent(this, LogActivity.class));
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     private class SMSForwardAdapter extends RecyclerView.Adapter<SMSForwardAdapter.ViewHolder> {
         public SMSForwardAdapter() {
         }
@@ -277,6 +316,5 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
 
 }

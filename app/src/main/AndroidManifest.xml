@@ -18,8 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App"
         tools:ignore="GoogleAppIndexingWarning">
-
-
+        <activity android:name=".ui.LogActivity">
+            <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".ui.MainActivity" />
+        </activity>
         <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -56,6 +59,7 @@
             android:name=".services.SmsSenderService"
             android:enabled="true"
             android:exported="true" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="4263a206f31f38d2b9ddc9b2f34713ef396b5903" />

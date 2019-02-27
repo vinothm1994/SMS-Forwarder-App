@@ -3,14 +3,22 @@ package com.esecforte.smsforwarder.utils;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
+import com.esecforte.smsforwarder.MyApp;
 import com.esecforte.smsforwarder.model.SMSForwardEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class AppUtils {
 
@@ -69,5 +77,27 @@ public class AppUtils {
         return jsonArray.toString();
     }
 
+    public static void appendLog(String text, boolean addTime) {
+        File logFile = new File(MyApp.getInstance().getFilesDir(), "log.txt");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", Locale.ENGLISH);
+            String date = simpleDateFormat.format(new Date());
+            if (addTime)
+              text = "["+date + "]" + text;
 
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

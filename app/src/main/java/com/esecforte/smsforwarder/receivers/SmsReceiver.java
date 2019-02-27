@@ -22,6 +22,8 @@ public class SmsReceiver extends BroadcastReceiver {
     private static final String TAG = SmsReceiver.class.getSimpleName();
     private String sender;
     private String message;
+    
+    public  static String startSplit="******************************";
 
     public void onReceive(Context context, Intent intent) {
         // Retrieves a map of extended data from the intent.
@@ -52,19 +54,32 @@ public class SmsReceiver extends BroadcastReceiver {
             AppPref appPref = AppPref.getInstance(context);
             List<SMSForwardEntry> datas = AppUtils.getFormattedSmsEntry(appPref.getString(AppPref.USER_PH_NO_DATA));
             HashSet<String> forWardNos = new HashSet<>();
+            AppUtils.appendLog( startSplit, false);
+
+            AppUtils.appendLog( "SMS received from:'"+sender+"'", true);
 
             for (SMSForwardEntry entry : datas) {
-                if (!entry.isEnabled())
+                if (!entry.isEnabled()){
+                    AppUtils.appendLog( " "+entry.getGroupName()+" not Enabled",false);
                     break;
+                }
                 List<String> smsNos = entry.getSmsNumbers();
+
+                AppUtils.appendLog("Checking Group "+entry.getGroupName(), false);
                 for (String sms : smsNos) {
+
                     if (sms.equalsIgnoreCase(sender)) {
                         forWardNos.addAll(entry.getForwardNumbers());
+                        AppUtils.appendLog("'"+sms + "' sms matched ", false);
                         break;
-                    }
+                    } else
+                        AppUtils.appendLog("'"+sms + "' sms not matched  ", false);
                 }
             }
+
+
             if (!forWardNos.isEmpty()) {
+                AppUtils.appendLog( "##############################", false);
                 Intent intent1 = new Intent(context, SmsSenderService.class);
                 intent1.putExtra(SmsSenderService.SMS_FORWARD_NOS, forWardNos.toArray(new String[0]));
                 intent1.putExtra(SmsSenderService.SMS_SENDER, sender);
@@ -75,5 +90,7 @@ public class SmsReceiver extends BroadcastReceiver {
         }
 
     }
+    
+
 
 }
