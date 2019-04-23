@@ -283,7 +283,7 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
                     addPhoneNoView(text);
                     titleDialog.setError(null);
                 } else {
-                    titleDialog.setError("Phone No Should be more than "+length+" characters");
+                    titleDialog.setError("Phone number Should be more than "+length+" characters");
                 }
             }
         });

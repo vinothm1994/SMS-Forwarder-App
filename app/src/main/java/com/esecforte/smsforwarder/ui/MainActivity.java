@@ -79,8 +79,6 @@ public class MainActivity extends BaseActivity {
                         Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE}, R.string.runtime_permissions_txt
                 , REQUEST_PERMISSIONS);
 
-        SmsReceiver.checkAndSendSms(this,"AT-SBIATM","HI THSIS");
-
     }
 
     @Override
@@ -137,6 +135,7 @@ public class MainActivity extends BaseActivity {
     public void edit(){
         smsForwardAdapter.notifyDataSetChanged();
         saveData();
+        Analytics.track(AnalyticsEvents.SMS_FORWARD_EDITED);
 
     }
 

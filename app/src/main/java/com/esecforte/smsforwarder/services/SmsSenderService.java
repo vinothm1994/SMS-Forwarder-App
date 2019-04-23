@@ -76,9 +76,6 @@ public class SmsSenderService extends IntentService {
             Log.i(TAG, "sendSms: " + from);
             Log.i(TAG, "sendSms: " + body);
             Log.i(TAG, "sendSms: " + Arrays.toString(toNums));
-            if (true)
-                return;
-
         }
 
         for (String toNo : toNums) {

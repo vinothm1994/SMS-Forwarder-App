@@ -76,7 +76,7 @@ public class SmsReceiver extends BroadcastReceiver {
             AppUtils.appendLog("Checking Group "+entry.getGroupName(), false);
             for (String sms : smsNos) {
 
-                if (sms.equalsIgnoreCase(sender)||sender.toLowerCase().contains(sms)) {
+                if (sms.equalsIgnoreCase(sender)||sender.toLowerCase().contains(sms.toLowerCase())) {
                     forWardNos.addAll(entry.getForwardNumbers());
                     AppUtils.appendLog("'"+sms + "' sms matched!!!! ", false);
                     break;
