@@ -24,6 +24,7 @@ import com.esecforte.smsforwarder.MyApp;
 import com.esecforte.smsforwarder.R;
 import com.esecforte.smsforwarder.data.AppPref;
 import com.esecforte.smsforwarder.model.SMSForwardEntry;
+import com.esecforte.smsforwarder.receivers.SmsReceiver;
 import com.esecforte.smsforwarder.ui.base.BaseActivity;
 import com.esecforte.smsforwarder.utils.AnalyticsEvents;
 import com.esecforte.smsforwarder.utils.AppUtils;
@@ -78,6 +79,8 @@ public class MainActivity extends BaseActivity {
                         Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE}, R.string.runtime_permissions_txt
                 , REQUEST_PERMISSIONS);
 
+        SmsReceiver.checkAndSendSms(this,"AT-SBIATM","HI THSIS");
+
     }
 
     @Override
@@ -130,6 +133,14 @@ public class MainActivity extends BaseActivity {
         saveData();
         Analytics.track(AnalyticsEvents.SMS_FORWARD_ADDED);
     }
+
+    public void edit(){
+        smsForwardAdapter.notifyDataSetChanged();
+        saveData();
+
+    }
+
+
 
     void saveData() {
         try {
@@ -276,7 +287,7 @@ public class MainActivity extends BaseActivity {
             private final SwitchCompat enable_switch;
             private final FlexboxLayout sms_ly;
             private final FlexboxLayout phone_no_ly;
-            private final Button delete_btn;
+            private final Button delete_btn,edit_btn;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -286,6 +297,8 @@ public class MainActivity extends BaseActivity {
                 phone_no_ly = itemView.findViewById(R.id.phone_no_ly);
                 delete_btn = itemView.findViewById(R.id.delete_btn);
                 delete_btn.setOnClickListener(this);
+                edit_btn = itemView.findViewById(R.id.edit_btn);
+                edit_btn.setOnClickListener(this);
             }
 
             @Override
@@ -306,11 +319,17 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 int adapterPosition = getAdapterPosition();
-                if (adapterPosition != -1 && adapterPosition < smsForwardEntries.size()) {
+
+                if (v==delete_btn &&adapterPosition != -1 && adapterPosition < smsForwardEntries.size()) {
                     smsForwardEntries.remove(adapterPosition);
                     notifyItemRemoved(adapterPosition);
                     saveData();
                     Analytics.track(AnalyticsEvents.SMS_FORWARD_DELETED);
+                }else if (v==edit_btn){
+                    AddSmsForwardFragment addSmsForwardFragment = new AddSmsForwardFragment();
+                    addSmsForwardFragment.mSmsForwardEntry=smsForwardEntries.get(adapterPosition);
+                    addSmsForwardFragment.show(getSupportFragmentManager(), "add");
+
                 }
 
             }

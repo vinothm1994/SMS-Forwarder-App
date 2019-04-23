@@ -30,7 +30,6 @@ import com.esecforte.smsforwarder.model.SMSForwardEntry;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +49,14 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
 
     private static final int SELECT_PHONE_NUMBER = 1011;
     public int id;
-    boolean isSelectSmsNo = true;
+    boolean isSelectInCSmsNo = true;
     List<String> smsNos = new ArrayList<>();
     List<String> phoneNos = new ArrayList<>();
     private FlexboxLayout sms_ly;
     private FlexboxLayout phone_no_ly;
     private EditText sms_group_name_et;
+
+    SMSForwardEntry mSmsForwardEntry;
 
 
     public AddSmsForwardFragment() {
@@ -99,7 +100,7 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
         add_sms_no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isSelectSmsNo = true;
+                isSelectInCSmsNo = true;
                 showPickerDialog();
             }
         });
@@ -107,10 +108,28 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
         add_ph_no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isSelectSmsNo = false;
+                isSelectInCSmsNo = false;
                 showPickerDialog();
             }
         });
+
+        if (mSmsForwardEntry != null) {
+            sms_group_name_et.setText(mSmsForwardEntry.getGroupName());
+            id=mSmsForwardEntry.getId();
+            for (String in : mSmsForwardEntry.getSmsNumbers()) {
+                isSelectInCSmsNo = true;
+                addPhoneNoView(in);
+            }
+
+            for (String in : mSmsForwardEntry.getForwardNumbers()) {
+                isSelectInCSmsNo = false;
+                addPhoneNoView(in);
+            }
+
+
+        }
+
+
     }
 
     void pick() {
@@ -149,7 +168,7 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
         chip.setCheckable(false);
         chip.setText(number);
         chip.setTag(number);
-        final boolean temp = isSelectSmsNo;
+        final boolean temp = isSelectInCSmsNo;
         final String finalNumber = number;
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
@@ -163,7 +182,7 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
                 }
             }
         });
-        if (isSelectSmsNo) {
+        if (isSelectInCSmsNo) {
             if (smsNos.contains(number))
                 return;
 
@@ -183,7 +202,7 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
 
     private void showPickerDialog() {
 
-        final String[] items = new String[]{"Select from Contract", "Enter Manually"};
+        final String[] items = new String[]{"Select from contact", "Enter Manually"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_item, items);
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Select");
@@ -216,22 +235,21 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
         lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         window.setAttributes(lp);
-        alertDialog.setCancelable(false);
+        alertDialog.setCancelable(true);
         MaterialButton input1 = alertDialog.findViewById(R.id.cancel);
         final MaterialButton input2 = alertDialog.findViewById(R.id.continuee);
-        input2.setEnabled(false);
-
         final EditText titleDialog = alertDialog.findViewById(R.id.dialog_title);
 
-        if (!isSelectSmsNo)
+        if (!isSelectInCSmsNo)
             titleDialog.setText("+91");
+        titleDialog.requestFocus();
         input1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
             }
         });
-        titleDialog.addTextChangedListener(new TextWatcher() {
+       /* titleDialog.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -249,23 +267,23 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
                     input2.setEnabled(true);
 
                 } else {
-
                     input2.setEnabled(false);
                 }
 
             }
-        });
+        });*/
 
         input2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String text = titleDialog.getText().toString().trim();
-                if (!TextUtils.isEmpty(text)) {
+                int length = isSelectInCSmsNo?3:10;
+                if (!TextUtils.isEmpty(text)&&text.length()>= length) {
                     alertDialog.dismiss();
                     addPhoneNoView(text);
                     titleDialog.setError(null);
                 } else {
-                    titleDialog.setError("Please enter Phone No");
+                    titleDialog.setError("Phone No Should be more than "+length+" characters");
                 }
             }
         });
@@ -299,9 +317,15 @@ public class AddSmsForwardFragment extends DialogFragment implements View.OnClic
         }
 
 
-        SMSForwardEntry smsForwardEntry = new SMSForwardEntry(id, true, groupName, smsNos, phoneNos);
-
-        ((MainActivity) getActivity()).addEntryData(smsForwardEntry);
+        if (mSmsForwardEntry == null) {
+            SMSForwardEntry smsForwardEntry = new SMSForwardEntry(id, true, groupName, smsNos, phoneNos);
+            ((MainActivity) getActivity()).addEntryData(smsForwardEntry);
+        } else {
+            mSmsForwardEntry.setGroupName(groupName);
+            mSmsForwardEntry.setForwardNumbers(phoneNos);
+            mSmsForwardEntry.setSmsNumbers(smsNos);
+            ((MainActivity) getActivity()).edit();
+        }
 
         dismiss();
     }

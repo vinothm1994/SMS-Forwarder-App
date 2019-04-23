@@ -51,6 +51,7 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/gray_border_bg"
             android:padding="10dp"
+            android:layout_marginBottom="3dp"
             app:alignContent="stretch"
             app:alignItems="stretch"
             app:flexWrap="wrap" />
@@ -84,6 +85,7 @@
             android:background="@drawable/gray_border_bg"
             android:minHeight="100dp"
             android:padding="10dp"
+            android:layout_marginBottom="3dp"
             app:alignContent="stretch"
             app:alignItems="stretch"
             app:flexWrap="wrap" />
@@ -95,11 +97,12 @@
             android:gravity="right">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_btn"
                 style="@style/Widget.App.Button.TextButton"
+                android:textColor="@color/colorPrimaryDark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:visibility="invisible"
                 android:text="edit" />
 
             <com.google.android.material.button.MaterialButton

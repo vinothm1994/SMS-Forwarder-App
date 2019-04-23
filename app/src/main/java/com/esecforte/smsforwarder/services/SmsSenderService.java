@@ -10,11 +10,16 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.telephony.SmsManager;
+import android.util.Log;
 
+import com.esecforte.smsforwarder.BuildConfig;
 import com.esecforte.smsforwarder.R;
 import com.esecforte.smsforwarder.receivers.DeliveredSmsReceiver;
 import com.esecforte.smsforwarder.receivers.SendSmsReceiver;
 import com.esecforte.smsforwarder.utils.AppUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -63,18 +68,39 @@ public class SmsSenderService extends IntentService {
     }
 
     void sendSms(String from, String body, String[] toNums) {
+
+
         String messDesc = "from:" + from + "\n" + body;
-        SmsManager smsManager = SmsManager.getDefault();
+
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "sendSms: " + from);
+            Log.i(TAG, "sendSms: " + body);
+            Log.i(TAG, "sendSms: " + Arrays.toString(toNums));
+            if (true)
+                return;
+
+        }
 
         for (String toNo : toNums) {
-            Intent intent = new Intent(this, SendSmsReceiver.class);
-            intent.putExtra("no",toNo);
-            PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 10, intent, PendingIntent.FLAG_ONE_SHOT);
-            Intent intent1 = new Intent(this, DeliveredSmsReceiver.class);
-            intent1.putExtra("no",toNo);
-            PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 11, intent1, PendingIntent.FLAG_ONE_SHOT);
-            smsManager.sendTextMessage(toNo, null, messDesc, sentPendingIntent, deliveredPendingIntent);
-            AppUtils.appendLog("sending sms to "+toNo, true);
+            SmsManager sm = SmsManager.getDefault();
+            ArrayList<String> parts = sm.divideMessage(messDesc);
+            int numParts = parts.size();
+            ArrayList<PendingIntent> sentIntents = new ArrayList<PendingIntent>();
+            ArrayList<PendingIntent> deliveryIntents = new ArrayList<PendingIntent>();
+            for (int i = 0; i < numParts; i++) {
+                Intent intent = new Intent(this, SendSmsReceiver.class);
+                intent.putExtra("no", toNo);
+                PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 10, intent, PendingIntent.FLAG_ONE_SHOT);
+                Intent intent1 = new Intent(this, DeliveredSmsReceiver.class);
+                intent1.putExtra("no", toNo);
+                PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 11, intent1, PendingIntent.FLAG_ONE_SHOT);
+                sentIntents.add(sentPendingIntent);
+                deliveryIntents.add(deliveredPendingIntent);
+            }
+            sm.sendMultipartTextMessage(toNo, null, parts, sentIntents, deliveryIntents);
+            AppUtils.appendLog("sending sms to " + toNo, true);
+
+
         }
 
     }
