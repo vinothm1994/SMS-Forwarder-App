@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
 
     <application
@@ -20,10 +20,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App"
         tools:ignore="GoogleAppIndexingWarning">
+        <service
+            android:name=".services.AutoStartService"
+            android:enabled="true"
+            android:exported="true" />
+
         <activity android:name=".ui.LogActivity">
             <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value=".ui.MainActivity" />
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.MainActivity" />
         </activity>
         <activity android:name=".ui.MainActivity">
             <intent-filter>
@@ -46,6 +51,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+
             </intent-filter>
         </receiver>
         <receiver
@@ -64,7 +71,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="4263a206f31f38d2b9ddc9b2f34713ef396b5903" />
+            android:value="fc018d2d23e1bbe01de2a0e44b8def64c37be7d9" />
     </application>
 
 </manifest>

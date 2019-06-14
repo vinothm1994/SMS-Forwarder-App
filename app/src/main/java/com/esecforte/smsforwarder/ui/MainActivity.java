@@ -76,7 +76,7 @@ public class MainActivity extends BaseActivity {
         initView();
         requestAppPermissions(new
                         String[]{Manifest.permission.SEND_SMS,
-                        Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE}, R.string.runtime_permissions_txt
+                        Manifest.permission.RECEIVE_SMS}, R.string.runtime_permissions_txt
                 , REQUEST_PERMISSIONS);
 
     }
