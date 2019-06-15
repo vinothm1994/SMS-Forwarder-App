@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,12 +18,18 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.crashlytics.android.Crashlytics;
-import com.esecforte.smsforwarder.MyApp;
+import com.esecforte.smsforwarder.BuildConfig;
 import com.esecforte.smsforwarder.R;
 import com.esecforte.smsforwarder.data.AppPref;
 import com.esecforte.smsforwarder.model.SMSForwardEntry;
-import com.esecforte.smsforwarder.receivers.SmsReceiver;
 import com.esecforte.smsforwarder.ui.base.BaseActivity;
 import com.esecforte.smsforwarder.utils.AnalyticsEvents;
 import com.esecforte.smsforwarder.utils.AppUtils;
@@ -33,29 +38,11 @@ import com.google.android.material.chip.Chip;
 
 import org.json.JSONException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import static com.esecforte.smsforwarder.data.AppPref.SHOW_OPTM_DIALOG;
 import static com.esecforte.smsforwarder.data.AppPref.USER_PH_NO_DATA;
-import static com.esecforte.smsforwarder.receivers.SmsReceiver.startSplit;
 
 public class MainActivity extends BaseActivity {
 
@@ -88,7 +75,6 @@ public class MainActivity extends BaseActivity {
             appPref.putBool(SHOW_OPTM_DIALOG, true);
         }
     }
-
 
 
     void initView() {
@@ -132,13 +118,12 @@ public class MainActivity extends BaseActivity {
         Analytics.track(AnalyticsEvents.SMS_FORWARD_ADDED);
     }
 
-    public void edit(){
+    public void edit() {
         smsForwardAdapter.notifyDataSetChanged();
         saveData();
         Analytics.track(AnalyticsEvents.SMS_FORWARD_EDITED);
 
     }
-
 
 
     void saveData() {
@@ -218,7 +203,14 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, MENU_ITEM_ITEM1, Menu.NONE, "Log");
+        if (BuildConfig.DEBUG)
+            menu.add(Menu.NONE, MENU_ITEM_ITEM1, Menu.NONE, "Log");
+
+        MenuItem delete_item = menu.add(Menu.NONE, 101, Menu.NONE, "Share");
+        delete_item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        delete_item.setIcon(R.drawable.ic_share);
+
+
         return true;
     }
 
@@ -228,7 +220,14 @@ public class MainActivity extends BaseActivity {
             case MENU_ITEM_ITEM1:
                 startActivity(new Intent(this, LogActivity.class));
                 return true;
-
+            case 101:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Hey check out my app at: https://play.google.com/store/apps/details?id=" + getPackageName());
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+                return true;
             default:
                 return false;
         }
@@ -286,7 +285,7 @@ public class MainActivity extends BaseActivity {
             private final SwitchCompat enable_switch;
             private final FlexboxLayout sms_ly;
             private final FlexboxLayout phone_no_ly;
-            private final Button delete_btn,edit_btn;
+            private final Button delete_btn, edit_btn;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -319,14 +318,14 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 int adapterPosition = getAdapterPosition();
 
-                if (v==delete_btn &&adapterPosition != -1 && adapterPosition < smsForwardEntries.size()) {
+                if (v == delete_btn && adapterPosition != -1 && adapterPosition < smsForwardEntries.size()) {
                     smsForwardEntries.remove(adapterPosition);
                     notifyItemRemoved(adapterPosition);
                     saveData();
                     Analytics.track(AnalyticsEvents.SMS_FORWARD_DELETED);
-                }else if (v==edit_btn){
+                } else if (v == edit_btn) {
                     AddSmsForwardFragment addSmsForwardFragment = new AddSmsForwardFragment();
-                    addSmsForwardFragment.mSmsForwardEntry=smsForwardEntries.get(adapterPosition);
+                    addSmsForwardFragment.mSmsForwardEntry = smsForwardEntries.get(adapterPosition);
                     addSmsForwardFragment.show(getSupportFragmentManager(), "add");
 
                 }
