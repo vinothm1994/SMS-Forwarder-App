@@ -9,4 +9,6 @@ public interface AnalyticsEvents {
     String SMS_FORWARD_ENABLED = "sms_list_enabled";
     String SMS_FORWARD_DISABLED = "sms_list_disabled";
     String AUTO_START_LAUNCHED = "auto_start_perm_launched";
+
+    String NOTIFICATION_REC = "notification_received";
 }

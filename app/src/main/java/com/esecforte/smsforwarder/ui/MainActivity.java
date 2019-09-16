@@ -26,7 +26,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.crashlytics.android.Crashlytics;
-import com.esecforte.smsforwarder.BuildConfig;
 import com.esecforte.smsforwarder.R;
 import com.esecforte.smsforwarder.data.AppPref;
 import com.esecforte.smsforwarder.model.SMSForwardEntry;
@@ -35,6 +34,7 @@ import com.esecforte.smsforwarder.utils.AnalyticsEvents;
 import com.esecforte.smsforwarder.utils.AppUtils;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 
@@ -65,6 +65,9 @@ public class MainActivity extends BaseActivity {
                         String[]{Manifest.permission.SEND_SMS,
                         Manifest.permission.RECEIVE_SMS}, R.string.runtime_permissions_txt
                 , REQUEST_PERMISSIONS);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
+        FirebaseMessaging.getInstance().subscribeToTopic("alarm");
 
     }
 
@@ -203,8 +206,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (BuildConfig.DEBUG)
-            menu.add(Menu.NONE, MENU_ITEM_ITEM1, Menu.NONE, "Log");
+        // if (BuildConfig.DEBUG)
+        menu.add(Menu.NONE, MENU_ITEM_ITEM1, Menu.NONE, "Log");
 
         MenuItem delete_item = menu.add(Menu.NONE, 101, Menu.NONE, "Share");
         delete_item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);

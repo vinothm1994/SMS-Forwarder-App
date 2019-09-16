@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 public class AppPref {
     public static final String PREF_NAME = "app-data";
     public static final String USER_PH_NO_DATA = "user-ph-no-data";
-    public static final String SHOW_OPTM_DIALOG = "show opt dialog v1";
+    public static final String SHOW_OPTM_DIALOG = "show opt dialog v2";
     private static AppPref appPref;
 
     SharedPreferences sharedPreferences;
